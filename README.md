@@ -12,7 +12,7 @@ An interactive, end-to-end Deep Learning web application designed to predict stu
 ## 📊 System Architecture
 The project follows a modern decoupled architecture, where the frontend UI communicates with a dedicated Machine Learning API backend. The detailed workflow, from user input to result display, is illustrated below:
 
-![System Architecture](Screenshot 2026-04-26 175051.png)
+![Architecture](./Screenshot 2026-04-26 175051.png)
 ### Workflow Breakdown:
 1.  **Student Input:** The process begins with the student filling out the interactive test form on the Vercel-hosted frontend.
 2.  **Data Collection & Preprocessing:** The backend API receives the raw input data, handles missing values, and scales the features using a Standard Scaler to prepare them for the model.
