@@ -40,10 +40,10 @@
         .card-face-back { transform: rotateY(180deg); }
 
         h2 { font-family: 'Fredoka One', cursive; font-size: 28px; color: var(--primary); margin-bottom: 5px; text-align:center; }
-        .quote { font-style: italic; color: #777; margin-bottom: 30px; font-size: 14px; border-left: 3px solid #ddd; padding-left: 10px; }
+        .quote { font-style: italic; color: #777; margin-bottom: 30px; font-size: 14px; border-left: 3px solid #ddd; padding-left: 10px; min-height: 40px;}
         
         .input-group { margin-top: 20px; text-align: left; }
-        label { font-size: 18px; color: #333; font-weight: 600; display: block; margin-bottom: 15px; }
+        label { font-size: 18px; color: #333; font-weight: 600; display: block; margin-bottom: 15px; min-height: 55px;}
         
         .slider-wrapper { display: flex; align-items: center; gap: 20px; }
         input[type="range"] { flex-grow: 1; height: 10px; cursor: pointer; accent-color: var(--primary); }
@@ -56,7 +56,6 @@
         .btn-group { display: flex; gap: 15px; margin-top: auto; padding-top: 20px; }
         button { padding: 18px; border-radius: 15px; cursor: pointer; font-size: 18px; font-weight: 600; transition: 0.3s; border: none; flex: 1; }
         .next-btn { background: var(--primary); color: white; }
-        .back-btn { background: #eee; color: #666; }
 
         /* GAUGE STYLES */
         .gauge-outer { position: relative; width: 240px; height: 120px; margin: 20px auto 40px; overflow: visible; }
@@ -71,15 +70,15 @@
 </head>
 <body>
 
-<div class="scene" id="main-scene">
+<div class="scene">
     <div class="card-container" id="flipper">
         <div class="card-face" id="face-front">
             <div id="progress-txt" style="font-weight: bold; color: #bbb;">Step 1 / 10</div>
-            <h2 id="title-f">Academic Load</h2>
-            <p class="quote" id="quote-f">"Padhai ka bojh, ya future ki khoj?"</p>
+            <h2 id="title-f">Loading...</h2>
+            <p class="quote" id="quote-f">Wait a moment...</p>
             
             <div class="input-group">
-                <label id="label-f">How heavy is your study load?</label>
+                <label id="label-f">Question Loading...</label>
                 <div class="slider-wrapper">
                     <input type="range" min="1" max="10" value="5" id="slider-f" oninput="updateDisp('f')">
                     <div class="range-value" id="val-f">5</div>
@@ -87,19 +86,18 @@
             </div>
 
             <div class="btn-group">
-                <button class="back-btn" onclick="moveStep(-1)" id="b-btn" style="visibility:hidden">Back</button>
-                <button class="next-btn" onclick="flipToBack()">Flip for Next &rarr;</button>
+                <button class="next-btn" onclick="flipToBack()">Flip & Next &rarr;</button>
             </div>
         </div>
 
         <div class="card-face card-face-back" id="face-back">
-            <div id="back-header" style="font-weight: bold; color: #bbb;">Next Question</div>
-            <h2 id="title-b">Performance</h2>
-            <p class="quote" id="quote-b">"Marks matter? Maybe. Mental health? Always."</p>
+            <div id="back-step-txt" style="font-weight: bold; color: #bbb;">Step 1 / 10</div>
+            <h2 id="title-b">Loading...</h2>
+            <p class="quote" id="quote-b">Almost there...</p>
             
             <div id="back-content-area">
                 <div class="input-group">
-                    <label id="label-b">Your Academic Performance?</label>
+                    <label id="label-b">Question Loading...</label>
                     <div class="slider-wrapper">
                         <input type="range" min="1" max="10" value="5" id="slider-b" oninput="updateDisp('b')">
                         <div class="range-value" id="val-b">5</div>
@@ -116,19 +114,33 @@
 
 <script>
     const allQuestions = [
-        { title: "Study Load", label: "Study load kitna hai?", quote: "Kitabein bohot si... par neend bhi zaroori hai!", color: "#3498db" },
-        { title: "Grades", label: "Academic Performance kaisi hai?", quote: "Result toh ek paper hai, aap gold ho!", color: "#3498db" },
-        { title: "Attendance", label: "Average Attendance (%)?", quote: "Attendance 75%? Mushkil hai par namumkin nahi.", color: "#3498db" },
-        { title: "Future", label: "Future Career ki chinta?", quote: "Life set hai? Ya abhi tension baaki hai?", color: "#3498db" },
-        { title: "Teacher", label: "Teacher ke sath relation?", quote: "Teacher strict hain ya dost jaise?", color: "#3498db" },
-        { title: "Sleep", label: "Neend ki quality kaisi hai?", quote: "8 ghante ki neend = 80% stress khatam.", color: "#2ecc71" },
-        { title: "Health", label: "Headache ya body pain?", quote: "Sar dard hai ya sirf Monday blues?", color: "#2ecc71" },
-        { title: "Activity", label: "Exercise ya Sports?", quote: "Body hilaao, stress bhagaao!", color: "#2ecc71" },
-        { title: "Anxiety", label: "Ghabrahat level kitna hai?", quote: "Chill maro, duniya nahi khatam ho rahi.", color: "#9b59b6" },
-        { title: "Focus", label: "Concentration me dikat?", quote: "Ek waqt pe ek kaam, baaki sab jaam.", color: "#9b59b6" },
-        { title: "Peer Pressure", label: "Doston ka pressure?", quote: "Log kya kahenge? Kuch toh log kahenge!", color: "#e67e22" },
-        { title: "Family", label: "Ghar walo ka support?", quote: "Family is everything, unse baat toh karo.", color: "#e67e22" }
-        // ... (Remaining added in background array logic)
+        // ACADEMIC (1-5)
+        { title: "Study Load", label: "Rate your daily study load (Hours/Volume)", quote: "Kitabein bohot si... par neend bhi zaroori hai!", color: "#3498db" },
+        { title: "Grades", label: "How satisfied are you with your grades?", quote: "Result toh ek paper hai, aap gold ho!", color: "#3498db" },
+        { title: "Attendance", label: "Rate your regularity in classes (%)", quote: "Attendance 75%? Mushkil hai par namumkin nahi.", color: "#3498db" },
+        { title: "Career", label: "Future career concern level?", quote: "Life set hai? Ya abhi tension baaki hai?", color: "#3498db" },
+        { title: "Teachers", label: "Teacher-Student relationship quality?", quote: "Teacher strict hain ya dost jaise?", color: "#3498db" },
+        
+        // PHYSIOLOGICAL (6-10)
+        { title: "Sleep", label: "Quality of your sleep lately?", quote: "8 ghante ki neend = 80% stress khatam.", color: "#2ecc71" },
+        { title: "Headache", label: "Frequency of headaches or migraines?", quote: "Sar dard hai ya sirf Monday blues?", color: "#2ecc71" },
+        { title: "Activity", label: "Physical activity/Sports involvement?", quote: "Body hilaao, stress bhagaao!", color: "#2ecc71" },
+        { title: "Breathing", label: "Any breathing issues or panic signs?", quote: "Gehri saans lo... sab theek ho jayega.", color: "#2ecc71" },
+        { title: "Diet", label: "Eating habits (Healthy vs Junk)?", quote: "Pizza khushi deta hai, par salad shanti.", color: "#2ecc71" },
+
+        // PSYCHOLOGICAL (11-15)
+        { title: "Anxiety", label: "Daily anxiety or nervousness level?", quote: "Chill maro, duniya nahi khatam ho rahi.", color: "#9b59b6" },
+        { title: "Mood", label: "Frequency of mood swings?", quote: "Kabhi khushi kabhi gham... normal hai!", color: "#9b59b6" },
+        { title: "Self Esteem", label: "How confident do you feel in yourself?", quote: "Aap apna favourite ho, bas yaad rakho.", color: "#9b59b6" },
+        { title: "Focus", label: "Concentration and focus on tasks?", quote: "Ek waqt pe ek kaam, baaki sab jaam.", color: "#9b59b6" },
+        { title: "Happiness", label: "Overall happiness with current life?", quote: "Smile please! Mobile ka front camera dekho.", color: "#9b59b6" },
+
+        // SOCIETAL (16-20)
+        { title: "Peer Pressure", label: "Pressure to fit in with friends?", quote: "Log kya kahenge? Kuch toh log kahenge!", color: "#e67e22" },
+        { title: "Family", label: "Support from family/home environment?", quote: "Family is everything, unse baat toh karo.", color: "#e67e22" },
+        { title: "Safety", label: "How safe do you feel in your surroundings?", quote: "Safety first! Mental aur physical dono.", color: "#e67e22" },
+        { title: "Socializing", label: "Time spent socializing with others?", quote: "Dost banao, chai piyo, stress bhulao.", color: "#e67e22" },
+        { title: "Internet", label: "Internet/Social media usage impact?", quote: "Screen time kam, real life zyada!", color: "#e67e22" }
     ];
 
     let currentCardIndex = 0; 
@@ -146,6 +158,7 @@
 
     function flipToFront() {
         answers[currentCardIndex * 2 + 1] = document.getElementById('slider-b').value;
+        
         if (currentCardIndex < 9) {
             currentCardIndex++;
             loadCardData();
@@ -156,10 +169,11 @@
     }
 
     function loadCardData() {
-        const qF = allQuestions[currentCardIndex * 2] || allQuestions[0];
-        const qB = allQuestions[currentCardIndex * 2 + 1] || allQuestions[1];
+        const qF = allQuestions[currentCardIndex * 2];
+        const qB = allQuestions[currentCardIndex * 2 + 1];
 
-        document.getElementById('progress-txt').innerText = `Step ${currentCardIndex + 1} / 10`;
+        // Front Side Update
+        document.getElementById('progress-txt').innerText = `Step ${currentCardIndex * 2 + 1} / 20`;
         document.getElementById('title-f').innerText = qF.title;
         document.getElementById('label-f').innerText = qF.label;
         document.getElementById('quote-f').innerText = qF.quote;
@@ -167,6 +181,8 @@
         document.getElementById('val-f').innerText = answers[currentCardIndex * 2];
         document.getElementById('face-front').style.borderTop = `10px solid ${qF.color}`;
 
+        // Back Side Update
+        document.getElementById('back-step-txt').innerText = `Step ${currentCardIndex * 2 + 2} / 20`;
         document.getElementById('title-b').innerText = qB.title;
         document.getElementById('label-b').innerText = qB.label;
         document.getElementById('quote-b').innerText = qB.quote;
@@ -178,9 +194,9 @@
     }
 
     async function predictFinal() {
-        document.getElementById('back-header').innerText = "Analyzing...";
-        document.getElementById('title-b').innerText = "Processing Data";
-        document.getElementById('back-content-area').innerHTML = "<div style='text-align:center; padding:50px;'>Please wait while we calculate your stress level...</div>";
+        document.getElementById('back-step-txt').innerText = "Processing...";
+        document.getElementById('title-b').innerText = "Analyzing Results";
+        document.getElementById('back-content-area').innerHTML = "<div style='text-align:center; padding:50px;'>Calculating your score...</div>";
         document.getElementById('back-btn-group').style.display = "none";
 
         try {
@@ -189,33 +205,33 @@
                 body: JSON.stringify({features: answers.map(Number)})
             });
             const data = await res.json();
-            showResultUI(data.stress_level);
+            showFinalUI(data.stress_level);
         } catch(e) {
             alert("Error connecting to server!");
             location.reload();
         }
     }
 
-    function showResultUI(lvl) {
-        document.getElementById('back-header').innerText = "Final Report";
-        document.getElementById('title-b').innerText = "Analysis Complete";
-        document.getElementById('quote-b').innerText = "Here is how you are doing today.";
+    function showFinalUI(lvl) {
+        document.getElementById('back-step-txt').innerText = "Final Report";
+        document.getElementById('title-b').innerText = "Result";
+        document.getElementById('quote-b').innerText = "Here is your stress analysis.";
         
         document.getElementById('back-content-area').innerHTML = `
             <div class="gauge-outer">
                 <div class="gauge-bg"></div>
                 <div class="gauge-inner"></div>
                 <div class="needle" id="res-needle"></div>
-                <div class="gauge-labels">
-                    <span class="percent-tag" style="left: -15px; bottom: 0;">0%</span>
+                <div style="position: absolute; width: 100%; top: 0; left: 0;">
+                    <span class="percent-tag" style="left: -15px; bottom: -120px;">0%</span>
                     <span class="percent-tag" style="left: 0px; top: 20px;">25%</span>
                     <span class="percent-tag" style="left: 105px; top: -15px;">50%</span>
                     <span class="percent-tag" style="right: 0px; top: 20px;">75%</span>
-                    <span class="percent-tag" style="right: -15px; bottom: 0;">100%</span>
+                    <span class="percent-tag" style="right: -15px; bottom: -120px;">100%</span>
                 </div>
             </div>
             <div class="res-pill ${lvl==='Low'?'active':''}" style="color:#2ecc71">😊 Low Stress</div>
-            <div class="res-pill ${lvl.includes('Med')?'active':''}" style="color:#f1c40f">😐 Moderate Stress</div>
+            <div class="res-pill ${lvl.includes('Med')||lvl.includes('Mod')?'active':''}" style="color:#f1c40f">😐 Moderate Stress</div>
             <div class="res-pill ${lvl==='High'?'active':''}" style="color:#e74c3c">😟 High Stress</div>
             <button onclick="location.reload()" class="next-btn" style="margin-top:20px; width:100%">Restart Test</button>
         `;
