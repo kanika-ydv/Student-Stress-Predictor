@@ -2,8 +2,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import numpy as np
-import tensorflow as tf
 import pickle
+import os
 
 app = FastAPI()
 
@@ -15,20 +15,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-model = tf.keras.models.load_model('stress_model.keras')
+# Load both PKL files (No TensorFlow needed)
+with open('stress_model.pkl', 'rb') as f:
+    model = pickle.load(f)
+
 with open('scaler.pkl', 'rb') as f:
     scaler = pickle.load(f)
 
 class UserInput(BaseModel):
-    features: list[float] 
+    features: list[float]
 
 @app.post("/predict")
 def predict_stress(data: UserInput):
     try:
         input_data = np.array(data.features).reshape(1, -1)
         scaled_data = scaler.transform(input_data)
+        
+        # Predict using Scikit-Learn ANN
         prediction = model.predict(scaled_data)
-        predicted_class = int(np.argmax(prediction, axis=1)[0])
+        predicted_class = int(prediction[0])
         
         levels = {0: "Low", 1: "Medium", 2: "High"}
         return {"stress_level": levels.get(predicted_class, "Unknown")}
