@@ -12,7 +12,7 @@ An interactive, end-to-end Deep Learning web application designed to predict stu
 ## 📊 System Architecture
 The project follows a modern decoupled architecture, where the frontend UI communicates with a dedicated Machine Learning API backend. The detailed workflow, from user input to result display, is illustrated below:
 
-![Student Stress Predictor System Workflow](https://i.imgur.com/vHq4U3F.png)
+![Student Stress Predictor System Workflow](./Screenshot 2026-04-26 175051.png) 
 
 ### Workflow Breakdown:
 1.  **Student Input:** The process begins with the student filling out the interactive test form on the Vercel-hosted frontend.
