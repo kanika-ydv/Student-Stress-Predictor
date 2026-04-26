@@ -3,124 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stress Level Predictor</title>
+    <title>Interactive Stress Predictor</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; margin-bottom: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #eef2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
         
-        /* Input Form Styles */
-        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-        button { background-color: #2b5c8f; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 10px; }
+        .scene { width: 450px; height: 600px; perspective: 1000px; }
+        
+        .card-container { width: 100%; height: 100%; position: relative; transition: transform 0.8s; transform-style: preserve-3d; }
+        .card-container.flip { transform: rotateY(180deg); }
+        
+        .card { position: absolute; width: 100%; height: 100%; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); backface-visibility: hidden; display: flex; flex-direction: column; box-sizing: border-box; overflow-y: auto; }
+        
+        .card.front { transform: rotateY(0deg); z-index: 2; }
+        .card.back { transform: rotateY(180deg); justify-content: center; }
+
+        h2 { color: #2b5c8f; text-align: center; margin-bottom: 10px; font-size: 22px; }
+        .progress { text-align: center; color: #888; font-size: 14px; margin-bottom: 20px; font-weight: bold; }
+        
+        .input-group { margin-bottom: 12px; text-align: left; }
+        label { font-size: 13px; color: #444; font-weight: 600; display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
+        
+        .btn-group { display: flex; justify-content: space-between; margin-top: auto; padding-top: 15px; }
+        button { background-color: #2b5c8f; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-size: 15px; transition: 0.3s; width: 48%; font-weight: bold; }
+        button.full { width: 100%; }
         button:hover { background-color: #1a3d60; }
+        button.outline { background-color: transparent; border: 2px solid #2b5c8f; color: #2b5c8f; }
+        button.outline:hover { background-color: #f0f4f8; }
 
         /* Gauge Meter Styles */
-        .gauge-box { margin-top: 30px; display: none; } /* Hidden by default */
-        .gauge-container { position: relative; width: 200px; height: 100px; overflow: hidden; margin: 0 auto; }
+        .gauge-container { position: relative; width: 200px; height: 100px; overflow: hidden; margin: 20px auto; }
         .gauge-bg { position: absolute; width: 200px; height: 200px; border-radius: 50%; background: conic-gradient(from 270deg, #8BC34A 0 60deg, #FFC107 60deg 120deg, #E53935 120deg 180deg, transparent 180deg 360deg); }
         .gauge-inner { position: absolute; width: 140px; height: 140px; background: white; border-radius: 50%; top: 30px; left: 30px; }
-        .needle { position: absolute; bottom: 0; left: 50%; width: 4px; height: 80px; background: #333; transform-origin: bottom center; transform: rotate(0deg); transition: transform 1s ease-in-out; border-radius: 4px; }
+        .needle { position: absolute; bottom: 0; left: 50%; width: 4px; height: 80px; background: #333; transform-origin: bottom center; transform: rotate(-90deg); transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1); border-radius: 4px; }
         .needle::after { content: ''; position: absolute; bottom: -6px; left: -6px; width: 16px; height: 16px; background: #333; border-radius: 50%; }
 
-        /* Result Display Styles */
-        .result-display { margin-top: 20px; border: 2px solid #2b5c8f; border-radius: 8px; padding: 15px; }
-        .emoji-row { display: flex; align-items: center; justify-content: center; margin: 10px 0; opacity: 0.3; transition: opacity 0.5s; font-size: 20px; font-weight: bold; }
+        /* Result Emojis */
+        .emoji-row { display: flex; align-items: center; justify-content: center; margin: 10px 0; opacity: 0.3; transition: all 0.5s; font-size: 20px; font-weight: bold; }
         .emoji-row.active { opacity: 1; transform: scale(1.1); }
         .emoji-row span { margin-left: 10px; }
-        .low-text { color: #8BC34A; }
-        .mod-text { color: #FFB300; }
-        .high-text { color: #E53935; }
+        .low-text { color: #8BC34A; } .mod-text { color: #FFB300; } .high-text { color: #E53935; }
+        
+        .loading { text-align: center; display: none; color: #E53935; font-weight: bold; margin-top: 15px; }
+
+        /* Custom Scrollbar for inputs */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #bbb; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2>Stress Level Predictor</h2>
-        <p>Enter your details below:</p>
+<div class="scene">
+    <div class="card-container" id="flipper">
         
-        <input type="number" id="study_hours" placeholder="Study Load (e.g. 5)">
-        <input type="number" id="sleep_hours" placeholder="Sleep Quality (e.g. 7)">
-        <button onclick="predictStress()">Predict Stress Level</button>
-    </div>
-
-    <div class="card gauge-box" id="output-section">
-        <h3>Stress Level Prediction</h3>
-        
-        <div class="gauge-container">
-            <div class="gauge-bg"></div>
-            <div class="gauge-inner"></div>
-            <div class="needle" id="gauge-needle" style="transform: rotate(-90deg);"></div> 
-        </div>
-
-        <div class="result-display">
-            <div class="emoji-row" id="result-low">
-                <span style="font-size: 30px;">😊</span>
-                <span class="low-text">Low Stress</span>
-            </div>
-            <div class="emoji-row" id="result-medium">
-                <span style="font-size: 30px;">😐</span>
-                <span class="mod-text">Moderate Stress</span>
-            </div>
-            <div class="emoji-row" id="result-high">
-                <span style="font-size: 30px;">😟</span>
-                <span class="high-text">High Stress</span>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        async function predictStress() {
-            // 1. Get values from inputs
-            const study = parseFloat(document.getElementById('study_hours').value);
-            const sleep = parseFloat(document.getElementById('sleep_hours').value);
+        <div class="card front" id="card-front">
+            <div class="progress" id="step-indicator">Step 1 of 4: Academic Factors</div>
+            <h2 id="card-title">Academic Details</h2>
             
-            // Ye array aapke dataset ke columns se match hona chahiye
-            const userFeatures = [study, sleep]; // Add other features here
+            <div id="input-container" style="flex-grow: 1; overflow-y: auto; padding-right: 5px;">
+                </div>
 
-            // Show output section
-            document.getElementById('output-section').style.display = 'block';
+            <div class="btn-group" id="btn-container">
+                <button class="outline" id="prev-btn" onclick="prevStep()" style="display:none;">Back</button>
+                <button class="full" id="next-btn" onclick="nextStep()">Next Category</button>
+            </div>
+            <div class="loading" id="loading-text">Analyzing your responses... Please wait.</div>
+        </div>
+
+        <div class="card back">
+            <h2>Your Stress Analysis</h2>
+            
+            <div class="gauge-container">
+                <div class="gauge-bg"></div>
+                <div class="gauge-inner"></div>
+                <div class="needle" id="gauge-needle"></div> 
+            </div>
+
+            <div style="margin-top: 20px;">
+                <div class="emoji-row" id="result-low"><span style="font-size: 30px;">😊</span><span class="low-text">Low Stress Level</span></div>
+                <div class="emoji-row" id="result-medium"><span style="font-size: 30px;">😐</span><span class="mod-text">Moderate Stress Level</span></div>
+                <div class="emoji-row" id="result-high"><span style="font-size: 30px;">😟</span><span class="high-text">High Stress Level</span></div>
+            </div>
+
+            <button class="outline" style="width: 100%; margin-top: 30px;" onclick="location.reload()">Take Test Again</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // 20 Full Standard Inputs mapped from Kaggle Dataset
+    const formSteps = [
+        {
+            title: "Academic Factors",
+            inputs: [
+                { id: "study_load", label: "Study Load (Hours per day)", type: "number", placeholder: "e.g., 5" },
+                { id: "academic_perf", label: "Academic Performance Score (1-10)", type: "number", placeholder: "10 = Excellent" },
+                { id: "attendance", label: "Average Attendance (%)", type: "number", placeholder: "e.g., 85" },
+                { id: "career_concern", label: "Future Career Concern (1-10)", type: "number", placeholder: "10 = Highly concerned" },
+                { id: "teacher_rel", label: "Teacher-Student Relationship (1-10)", type: "number", placeholder: "10 = Excellent" }
+            ]
+        },
+        {
+            title: "Physiological Factors",
+            inputs: [
+                { id: "sleep_quality", label: "Sleep Quality Score (1-10)", type: "number", placeholder: "10 = Best Sleep" },
+                { id: "headache", label: "Headache Frequency (1-10)", type: "number", placeholder: "10 = Daily" },
+                { id: "blood_pressure", label: "Blood Pressure Issues (0=No, 1=Yes)", type: "number", placeholder: "0 or 1" },
+                { id: "breathing", label: "Breathing Problems (0=No, 1=Yes)", type: "number", placeholder: "0 or 1" },
+                { id: "physical_act", label: "Physical Activity (Hours per week)", type: "number", placeholder: "e.g., 4" }
+            ]
+        },
+        {
+            title: "Psychological Factors",
+            inputs: [
+                { id: "anxiety", label: "Anxiety Level (1-10)", type: "number", placeholder: "10 = Extreme Anxiety" },
+                { id: "self_esteem", label: "Self Esteem Level (1-10)", type: "number", placeholder: "10 = Highly Confident" },
+                { id: "mental_history", label: "Past Mental Health History (0=No, 1=Yes)", type: "number", placeholder: "0 or 1" },
+                { id: "depression", label: "Feelings of Depression (1-10)", type: "number", placeholder: "10 = Extremely High" },
+                { id: "stress_tolerance", label: "Stress Tolerance Ability (1-10)", type: "number", placeholder: "10 = Handle stress very well" }
+            ]
+        },
+        {
+            title: "Societal Factors",
+            inputs: [
+                { id: "peer_pressure", label: "Peer Pressure Score (1-10)", type: "number", placeholder: "10 = Extreme Pressure" },
+                { id: "family_rel", label: "Family Relationships (1-10)", type: "number", placeholder: "10 = Excellent Support" },
+                { id: "living_cond", label: "Living Conditions Rating (1-10)", type: "number", placeholder: "10 = Very Comfortable" },
+                { id: "extra_curr", label: "Extracurricular Involvement (Hours/week)", type: "number", placeholder: "e.g., 3" },
+                { id: "social_support", label: "Social Support Network (1-10)", type: "number", placeholder: "10 = Very Strong" }
+            ]
+        }
+    ];
+
+    let currentStep = 0;
+    const userAnswers = []; 
+
+    function renderStep() {
+        const stepData = formSteps[currentStep];
+        document.getElementById('step-indicator').innerText = `Step ${currentStep + 1} of 4: ${stepData.title}`;
+        document.getElementById('card-title').innerText = stepData.title;
+        
+        let html = '';
+        stepData.inputs.forEach(input => {
+            const val = userAnswers[input.id] !== undefined ? userAnswers[input.id] : ''; 
+            html += `<div class="input-group">
+                        <label>${input.label}</label>
+                        <input type="${input.type}" id="${input.id}" placeholder="${input.placeholder}" value="${val}" required>
+                     </div>`;
+        });
+        document.getElementById('input-container').innerHTML = html;
+
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        
+        if (currentStep === 0) {
+            prevBtn.style.display = 'none';
+            nextBtn.className = 'full';
+        } else {
+            prevBtn.style.display = 'block';
+            nextBtn.className = '';
+        }
+
+        if (currentStep === formSteps.length - 1) {
+            nextBtn.innerText = "Submit & Predict";
+            nextBtn.style.backgroundColor = "#E53935"; 
+        } else {
+            nextBtn.innerText = "Next Category";
+            nextBtn.style.backgroundColor = "#2b5c8f";
+        }
+    }
+
+    function saveCurrentInputs() {
+        const stepData = formSteps[currentStep];
+        stepData.inputs.forEach(input => {
+            const element = document.getElementById(input.id);
+            if(element) userAnswers[input.id] = element.value;
+        });
+    }
+
+    function prevStep() {
+        saveCurrentInputs();
+        if (currentStep > 0) {
+            currentStep--;
+            renderStep();
+        }
+    }
+
+    async function nextStep() {
+        saveCurrentInputs();
+        
+        if (currentStep === formSteps.length - 1) {
+            document.getElementById('btn-container').style.display = 'none';
+            document.getElementById('loading-text').style.display = 'block';
+            
+            // All 20 Inputs mapped exactly
+            const finalFeaturesArray = [
+                parseFloat(userAnswers['study_load'] || 0),
+                parseFloat(userAnswers['academic_perf'] || 0),
+                parseFloat(userAnswers['attendance'] || 0),
+                parseFloat(userAnswers['career_concern'] || 0),
+                parseFloat(userAnswers['teacher_rel'] || 0),
+                parseFloat(userAnswers['sleep_quality'] || 0),
+                parseFloat(userAnswers['headache'] || 0),
+                parseFloat(userAnswers['blood_pressure'] || 0),
+                parseFloat(userAnswers['breathing'] || 0),
+                parseFloat(userAnswers['physical_act'] || 0),
+                parseFloat(userAnswers['anxiety'] || 0),
+                parseFloat(userAnswers['self_esteem'] || 0),
+                parseFloat(userAnswers['mental_history'] || 0),
+                parseFloat(userAnswers['depression'] || 0),
+                parseFloat(userAnswers['stress_tolerance'] || 0),
+                parseFloat(userAnswers['peer_pressure'] || 0),
+                parseFloat(userAnswers['family_rel'] || 0),
+                parseFloat(userAnswers['living_cond'] || 0),
+                parseFloat(userAnswers['extra_curr'] || 0),
+                parseFloat(userAnswers['social_support'] || 0)
+            ];
 
             try {
-                // Apna Render URL yahan daalein
-                const response = await fetch("https://YOUR-RENDER-APP-NAME.onrender.com/predict", {
+                // Apna Render URL yahan set karein
+                const response = await fetch("https://YOUR-RENDER-URL.onrender.com/predict", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ features: userFeatures })
+                    body: JSON.stringify({ features: finalFeaturesArray })
                 });
 
                 const data = await response.json();
-                updateUI(data.stress_level);
+                
+                document.getElementById('flipper').classList.add('flip');
+                
+                setTimeout(() => {
+                    updateResultUI(data.stress_level);
+                }, 500);
 
             } catch (error) {
                 console.error("API Error:", error);
-                // For testing UI without API, you can hardcode a result here temporarily:
-                // updateUI("Medium"); 
+                alert("Please check your Render backend URL connection!");
             }
+        } else {
+            currentStep++;
+            renderStep();
         }
+    }
 
-        function updateUI(level) {
-            const needle = document.getElementById('gauge-needle');
-            const rowLow = document.getElementById('result-low');
-            const rowMed = document.getElementById('result-medium');
-            const rowHigh = document.getElementById('result-high');
+    function updateResultUI(level) {
+        const needle = document.getElementById('gauge-needle');
+        const rowLow = document.getElementById('result-low');
+        const rowMed = document.getElementById('result-medium');
+        const rowHigh = document.getElementById('result-high');
 
-            // Reset classes
-            rowLow.classList.remove('active');
-            rowMed.classList.remove('active');
-            rowHigh.classList.remove('active');
-
-            // Update UI based on API response
-            if (level === "Low") {
-                needle.style.transform = "rotate(-60deg)"; // Left area
-                rowLow.classList.add('active');
-            } else if (level === "Medium" || level === "Moderate") {
-                needle.style.transform = "rotate(0deg)"; // Middle area
-                rowMed.classList.add('active');
-            } else if (level === "High") {
-                needle.style.transform = "rotate(60deg)"; // Right area
-                rowHigh.classList.add('active');
-            }
+        if (level === "Low") {
+            needle.style.transform = "rotate(-60deg)";
+            rowLow.classList.add('active');
+        } else if (level === "Medium" || level === "Moderate") {
+            needle.style.transform = "rotate(0deg)";
+            rowMed.classList.add('active');
+        } else if (level === "High") {
+            needle.style.transform = "rotate(60deg)";
+            rowHigh.classList.add('active');
         }
-    </script>
+    }
+
+    window.onload = renderStep;
+</script>
 
 </body>
 </html>
