@@ -9,16 +9,13 @@ An interactive, end-to-end Deep Learning web application designed to predict stu
 ## 🚀 Live Demo: https://student-stress-predictor-phi.vercel.app/ 
 
 ---
-
 ## 📊 System Architecture
-The project follows a modern decoupled architecture for high scalability and performance:
+The project follows a modern decoupled architecture, where the frontend UI communicates with a dedicated Machine Learning API backend. The detailed workflow, from user input to result display, is illustrated below:
 
-```mermaid
-graph TD
-    User((User)) -->|Inputs| UI[Interactive 3D UI - Vercel]
-    UI -->|JSON Data| API[FastAPI - Render]
-    API -->|Pre-process| Scaler[Standard Scaler]
-    Scaler -->|Scaled Vector| Model[ANN MLP Model]
-    Model -->|Class Prediction| API
-    API -->|Response| UI
-    UI -->|Visualization| Gauge[Percentage Gauge Meter]
+![Student Stress Predictor System Workflow](https://i.imgur.com/vHq4U3F.png)
+
+### Workflow Breakdown:
+1.  **Student Input:** The process begins with the student filling out the interactive test form on the Vercel-hosted frontend.
+2.  **Data Collection & Preprocessing:** The backend API receives the raw input data, handles missing values, and scales the features using a Standard Scaler to prepare them for the model.
+3.  **Feature Selection & Modeling:** The most relevant features are fed into the optimized Multi-Layer Perceptron (ANN) model hosted on Render.
+4.  **Prediction & Display:** The model generates a stress level classification (Low, Moderate, High), which is sent back to the frontend and visualized instantly via the gauge meter and emoji indicators.
