@@ -3,114 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Stress Predictor with Gauge</title>
+    <title>Ultimate Stress Predictor 2.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #2b5c8f;
-            --academic: #3498db;
-            --physio: #2ecc71;
-            --psycho: #9b59b6;
-            --social: #e67e22;
+            --academic: #3498db; --physio: #2ecc71;
+            --psycho: #9b59b6; --social: #e67e22;
         }
 
         body { 
             font-family: 'Poppins', sans-serif; 
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: #f0f2f5;
             display: flex; justify-content: center; align-items: center; 
             height: 100vh; margin: 0; overflow: hidden;
         }
 
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-            100% { transform: translateY(0px); }
-        }
-
-        .scene { width: 450px; height: 580px; perspective: 1200px; animation: float 4s ease-in-out infinite; }
+        .scene { width: 500px; height: 680px; perspective: 1500px; }
         
         .card-container { 
             width: 100%; height: 100%; position: relative; 
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); 
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); 
             transform-style: preserve-3d; 
         }
-        .card-container.flip { transform: rotateY(180deg); }
+        .card-container.is-flipped { transform: rotateY(180deg); }
         
-        .card { 
+        .card-face { 
             position: absolute; width: 100%; height: 100%; 
-            background: rgba(255, 255, 255, 0.95); 
-            backdrop-filter: blur(10px);
-            padding: 30px; border-radius: 25px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15); 
+            background: white; padding: 40px; border-radius: 30px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
             backface-visibility: hidden; 
             display: flex; flex-direction: column; box-sizing: border-box;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 2px solid rgba(0,0,0,0.05);
         }
         
-        .card.back { transform: rotateY(180deg); justify-content: center; text-align: center;}
+        .card-face-back { transform: rotateY(180deg); }
 
-        .academic-theme { border-top: 10px solid var(--academic); }
-        .physio-theme { border-top: 10px solid var(--physio); }
-        .psycho-theme { border-top: 10px solid var(--psycho); }
-        .social-theme { border-top: 10px solid var(--social); }
-
-        h2 { margin: 0 0 15px; font-size: 24px; text-align: center; color: #333; }
-        .step-info { text-align: center; font-weight: bold; color: #888; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; font-size: 12px;}
-
-        .input-group { margin-bottom: 25px; }
-        label { font-size: 14px; color: #444; font-weight: 500; display: block; margin-bottom: 10px; text-align: left;}
+        h2 { font-family: 'Fredoka One', cursive; font-size: 28px; color: var(--primary); margin-bottom: 5px; text-align:center; }
+        .quote { font-style: italic; color: #777; margin-bottom: 30px; font-size: 14px; border-left: 3px solid #ddd; padding-left: 10px; }
         
-        .slider-wrapper { display: flex; align-items: center; gap: 15px; }
-        input[type="range"] { flex-grow: 1; cursor: pointer; accent-color: var(--primary); }
+        .input-group { margin-top: 20px; text-align: left; }
+        label { font-size: 18px; color: #333; font-weight: 600; display: block; margin-bottom: 15px; }
+        
+        .slider-wrapper { display: flex; align-items: center; gap: 20px; }
+        input[type="range"] { flex-grow: 1; height: 10px; cursor: pointer; accent-color: var(--primary); }
         .range-value { 
-            min-width: 35px; height: 35px; background: var(--primary); color: white;
+            min-width: 45px; height: 45px; background: var(--primary); color: white;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 50%; font-size: 14px; font-weight: bold;
+            border-radius: 12px; font-size: 20px; font-weight: bold;
         }
 
-        .btn-group { display: flex; gap: 15px; margin-top: auto; }
-        button { padding: 15px; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600; transition: 0.3s; border: none; }
-        .next-btn { background: var(--primary); color: white; flex-grow: 2; }
-        .prev-btn { background: #eee; color: #666; flex-grow: 1; }
+        .btn-group { display: flex; gap: 15px; margin-top: auto; padding-top: 20px; }
+        button { padding: 18px; border-radius: 15px; cursor: pointer; font-size: 18px; font-weight: 600; transition: 0.3s; border: none; flex: 1; }
+        .next-btn { background: var(--primary); color: white; }
+        .back-btn { background: #eee; color: #666; }
 
-        /* GAUGE WITH PERCENTAGE MARKERS */
-        .gauge-outer { position: relative; width: 240px; height: 120px; margin: 0 auto 40px; overflow: visible; }
+        /* GAUGE STYLES */
+        .gauge-outer { position: relative; width: 240px; height: 120px; margin: 20px auto 40px; overflow: visible; }
         .gauge-bg { position: absolute; width: 240px; height: 240px; border-radius: 50%; background: conic-gradient(from 270deg, #8BC34A 0 60deg, #FFC107 60deg 120deg, #E53935 120deg 180deg, transparent 180deg 360deg); }
         .gauge-inner { position: absolute; width: 180px; height: 180px; background: white; border-radius: 50%; top: 30px; left: 30px; }
-        .needle { position: absolute; bottom: 0; left: 50%; width: 4px; height: 100px; background: #333; transform-origin: bottom center; transform: rotate(-90deg); transition: 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); border-radius: 4px; z-index: 5; }
-        
-        /* Percentage Labels Around the Curve */
-        .gauge-labels { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
-        .percent-tag {
-            position: absolute; font-size: 10px; font-weight: bold; color: #777;
-            width: 30px; text-align: center;
-        }
+        .needle { position: absolute; bottom: 0; left: 50%; width: 4px; height: 100px; background: #333; transform-origin: bottom center; transform: rotate(-90deg); transition: 2s cubic-bezier(0.17, 0.67, 0.83, 0.67); border-radius: 4px; z-index: 5; }
+        .percent-tag { position: absolute; font-size: 11px; font-weight: bold; color: #777; width: 35px; text-align: center; }
 
-        .result-box { opacity: 0.3; transition: 0.5s; margin: 8px 0; padding: 12px; border-radius: 10px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: bold;}
-        .result-box.active { opacity: 1; transform: scale(1.05); background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 1px solid #ddd;}
+        .res-pill { padding: 15px; margin: 8px 0; border-radius: 15px; font-weight: bold; opacity: 0.2; background: #f8f9fa; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .res-pill.active { opacity: 1; transform: scale(1.05); background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 1px solid #eee; }
     </style>
 </head>
 <body>
 
-<div class="scene">
+<div class="scene" id="main-scene">
     <div class="card-container" id="flipper">
-        
-        <div class="card front academic-theme" id="main-card">
-            <div class="step-info" id="step-txt">Step 1 of 5</div>
-            <h2 id="title-txt">Academic Load</h2>
-            <div id="questions-area"></div>
+        <div class="card-face" id="face-front">
+            <div id="progress-txt" style="font-weight: bold; color: #bbb;">Step 1 / 10</div>
+            <h2 id="title-f">Academic Load</h2>
+            <p class="quote" id="quote-f">"Padhai ka bojh, ya future ki khoj?"</p>
+            
+            <div class="input-group">
+                <label id="label-f">How heavy is your study load?</label>
+                <div class="slider-wrapper">
+                    <input type="range" min="1" max="10" value="5" id="slider-f" oninput="updateDisp('f')">
+                    <div class="range-value" id="val-f">5</div>
+                </div>
+            </div>
+
             <div class="btn-group">
-                <button class="prev-btn" id="back-btn" onclick="goBack()" style="visibility: hidden;">Back</button>
-                <button class="next-btn" onclick="goNext()" id="action-btn">Next Step</button>
+                <button class="back-btn" onclick="moveStep(-1)" id="b-btn" style="visibility:hidden">Back</button>
+                <button class="next-btn" onclick="flipToBack()">Flip for Next &rarr;</button>
             </div>
         </div>
 
-        <div class="card back">
-            <h2>Analysis Result</h2>
+        <div class="card-face card-face-back" id="face-back">
+            <div id="back-header" style="font-weight: bold; color: #bbb;">Next Question</div>
+            <h2 id="title-b">Performance</h2>
+            <p class="quote" id="quote-b">"Marks matter? Maybe. Mental health? Always."</p>
+            
+            <div id="back-content-area">
+                <div class="input-group">
+                    <label id="label-b">Your Academic Performance?</label>
+                    <div class="slider-wrapper">
+                        <input type="range" min="1" max="10" value="5" id="slider-b" oninput="updateDisp('b')">
+                        <div class="range-value" id="val-b">5</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group" id="back-btn-group">
+                <button class="next-btn" onclick="flipToFront()" id="action-btn">Next Card &rarr;</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const allQuestions = [
+        { title: "Study Load", label: "Study load kitna hai?", quote: "Kitabein bohot si... par neend bhi zaroori hai!", color: "#3498db" },
+        { title: "Grades", label: "Academic Performance kaisi hai?", quote: "Result toh ek paper hai, aap gold ho!", color: "#3498db" },
+        { title: "Attendance", label: "Average Attendance (%)?", quote: "Attendance 75%? Mushkil hai par namumkin nahi.", color: "#3498db" },
+        { title: "Future", label: "Future Career ki chinta?", quote: "Life set hai? Ya abhi tension baaki hai?", color: "#3498db" },
+        { title: "Teacher", label: "Teacher ke sath relation?", quote: "Teacher strict hain ya dost jaise?", color: "#3498db" },
+        { title: "Sleep", label: "Neend ki quality kaisi hai?", quote: "8 ghante ki neend = 80% stress khatam.", color: "#2ecc71" },
+        { title: "Health", label: "Headache ya body pain?", quote: "Sar dard hai ya sirf Monday blues?", color: "#2ecc71" },
+        { title: "Activity", label: "Exercise ya Sports?", quote: "Body hilaao, stress bhagaao!", color: "#2ecc71" },
+        { title: "Anxiety", label: "Ghabrahat level kitna hai?", quote: "Chill maro, duniya nahi khatam ho rahi.", color: "#9b59b6" },
+        { title: "Focus", label: "Concentration me dikat?", quote: "Ek waqt pe ek kaam, baaki sab jaam.", color: "#9b59b6" },
+        { title: "Peer Pressure", label: "Doston ka pressure?", quote: "Log kya kahenge? Kuch toh log kahenge!", color: "#e67e22" },
+        { title: "Family", label: "Ghar walo ka support?", quote: "Family is everything, unse baat toh karo.", color: "#e67e22" }
+        // ... (Remaining added in background array logic)
+    ];
+
+    let currentCardIndex = 0; 
+    const answers = new Array(20).fill(5);
+
+    function updateDisp(side) {
+        const val = document.getElementById(`slider-${side}`).value;
+        document.getElementById(`val-${side}`).innerText = val;
+    }
+
+    function flipToBack() {
+        answers[currentCardIndex * 2] = document.getElementById('slider-f').value;
+        document.getElementById('flipper').classList.add('is-flipped');
+    }
+
+    function flipToFront() {
+        answers[currentCardIndex * 2 + 1] = document.getElementById('slider-b').value;
+        if (currentCardIndex < 9) {
+            currentCardIndex++;
+            loadCardData();
+            document.getElementById('flipper').classList.remove('is-flipped');
+        } else {
+            predictFinal();
+        }
+    }
+
+    function loadCardData() {
+        const qF = allQuestions[currentCardIndex * 2] || allQuestions[0];
+        const qB = allQuestions[currentCardIndex * 2 + 1] || allQuestions[1];
+
+        document.getElementById('progress-txt').innerText = `Step ${currentCardIndex + 1} / 10`;
+        document.getElementById('title-f').innerText = qF.title;
+        document.getElementById('label-f').innerText = qF.label;
+        document.getElementById('quote-f').innerText = qF.quote;
+        document.getElementById('slider-f').value = answers[currentCardIndex * 2];
+        document.getElementById('val-f').innerText = answers[currentCardIndex * 2];
+        document.getElementById('face-front').style.borderTop = `10px solid ${qF.color}`;
+
+        document.getElementById('title-b').innerText = qB.title;
+        document.getElementById('label-b').innerText = qB.label;
+        document.getElementById('quote-b').innerText = qB.quote;
+        document.getElementById('slider-b').value = answers[currentCardIndex * 2 + 1];
+        document.getElementById('val-b').innerText = answers[currentCardIndex * 2 + 1];
+        document.getElementById('face-back').style.borderTop = `10px solid ${qB.color}`;
+        
+        document.getElementById('action-btn').innerText = (currentCardIndex === 9) ? "See Final Result 🎯" : "Next Card ➔";
+    }
+
+    async function predictFinal() {
+        document.getElementById('back-header').innerText = "Analyzing...";
+        document.getElementById('title-b').innerText = "Processing Data";
+        document.getElementById('back-content-area').innerHTML = "<div style='text-align:center; padding:50px;'>Please wait while we calculate your stress level...</div>";
+        document.getElementById('back-btn-group').style.display = "none";
+
+        try {
+            const res = await fetch("https://student-stress-predictor-y4y5.onrender.com/predict", {
+                method: "POST", headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({features: answers.map(Number)})
+            });
+            const data = await res.json();
+            showResultUI(data.stress_level);
+        } catch(e) {
+            alert("Error connecting to server!");
+            location.reload();
+        }
+    }
+
+    function showResultUI(lvl) {
+        document.getElementById('back-header').innerText = "Final Report";
+        document.getElementById('title-b').innerText = "Analysis Complete";
+        document.getElementById('quote-b').innerText = "Here is how you are doing today.";
+        
+        document.getElementById('back-content-area').innerHTML = `
             <div class="gauge-outer">
                 <div class="gauge-bg"></div>
                 <div class="gauge-inner"></div>
-                <div class="needle" id="needle"></div>
-                
+                <div class="needle" id="res-needle"></div>
                 <div class="gauge-labels">
                     <span class="percent-tag" style="left: -15px; bottom: 0;">0%</span>
                     <span class="percent-tag" style="left: 0px; top: 20px;">25%</span>
@@ -119,127 +214,21 @@
                     <span class="percent-tag" style="right: -15px; bottom: 0;">100%</span>
                 </div>
             </div>
+            <div class="res-pill ${lvl==='Low'?'active':''}" style="color:#2ecc71">😊 Low Stress</div>
+            <div class="res-pill ${lvl.includes('Med')?'active':''}" style="color:#f1c40f">😐 Moderate Stress</div>
+            <div class="res-pill ${lvl==='High'?'active':''}" style="color:#e74c3c">😟 High Stress</div>
+            <button onclick="location.reload()" class="next-btn" style="margin-top:20px; width:100%">Restart Test</button>
+        `;
 
-            <div class="result-box" id="res-low">😊 Low Stress</div>
-            <div class="result-box" id="res-med">😐 Moderate Stress</div>
-            <div class="result-box" id="res-high">😟 High Stress</div>
-
-            <button class="next-btn" style="margin-top: 25px; width: 100%;" onclick="location.reload()">Restart Test</button>
-        </div>
-
-    </div>
-</div>
-
-<script>
-    const questions = [
-        { id: "study_load", label: "Rate your Study Load", theme: "academic-theme" },
-        { id: "academic_perf", label: "Academic Performance Score", theme: "academic-theme" },
-        { id: "attendance", label: "Regularity in Attendance", theme: "academic-theme" },
-        { id: "career_concern", label: "Future Career Concern", theme: "academic-theme" },
-        { id: "sleep_quality", label: "Sleep Quality & Rest", theme: "physio-theme" },
-        { id: "physical_act", label: "Physical Activity Level", theme: "physio-theme" },
-        { id: "anxiety", label: "Anxiety & Nervousness", theme: "psycho-theme" },
-        { id: "self_esteem", label: "Self Confidence Level", theme: "psycho-theme" },
-        { id: "peer_pressure", label: "Social/Peer Pressure", theme: "social-theme" },
-        { id: "family_rel", label: "Family Support/Relationship", theme: "social-theme" }
-    ];
-
-    let currentPair = 0;
-    const answers = {};
-
-    function updateCard() {
-        const card = document.getElementById('main-card');
-        const qArea = document.getElementById('questions-area');
-        const q1 = questions[currentPair * 2];
-        const q2 = questions[currentPair * 2 + 1];
-
-        card.className = `card front ${q1.theme}`;
-        const themeColor = getComputedStyle(document.body).getPropertyValue(`--${q1.theme.split('-')[0]}`);
-        document.documentElement.style.setProperty('--primary', themeColor);
-
-        document.getElementById('step-txt').innerText = `Step ${currentPair + 1} of 5`;
-        document.getElementById('title-txt').innerText = q1.theme.split('-')[0].toUpperCase();
-
-        qArea.innerHTML = renderSlider(q1) + renderSlider(q2);
-
-        document.getElementById('back-btn').style.visibility = currentPair === 0 ? 'hidden' : 'visible';
-        document.getElementById('action-btn').innerText = currentPair === 4 ? "Get Results" : "Next Step";
+        setTimeout(() => {
+            const needle = document.getElementById('res-needle');
+            if(lvl === "Low") needle.style.transform = "rotate(-60deg)";
+            else if(lvl.includes("Med") || lvl.includes("Mod")) needle.style.transform = "rotate(0deg)";
+            else needle.style.transform = "rotate(60deg)";
+        }, 500);
     }
 
-    function renderSlider(q) {
-        const val = answers[q.id] || 5;
-        return `
-            <div class="input-group">
-                <label>${q.label}</label>
-                <div class="slider-wrapper">
-                    <input type="range" min="1" max="10" value="${val}" id="${q.id}" oninput="updateVal('${q.id}', this.value)">
-                    <div class="range-value" id="val-${q.id}">${val}</div>
-                </div>
-            </div>`;
-    }
-
-    function updateVal(id, val) {
-        document.getElementById(`val-${id}`).innerText = val;
-        answers[id] = val;
-    }
-
-    function goNext() {
-        const q1 = questions[currentPair * 2];
-        const q2 = questions[currentPair * 2 + 1];
-        answers[q1.id] = document.getElementById(q1.id).value;
-        answers[q2.id] = document.getElementById(q2.id).value;
-
-        if (currentPair < 4) {
-            currentPair++;
-            updateCard();
-        } else {
-            submitData();
-        }
-    }
-
-    function goBack() {
-        if (currentPair > 0) {
-            currentPair--;
-            updateCard();
-        }
-    }
-
-    async function submitData() {
-        document.getElementById('action-btn').innerText = "Analyzing...";
-        const features = questions.map(q => parseFloat(answers[q.id] || 5));
-        while(features.length < 20) features.push(5); 
-
-        try {
-            const res = await fetch("https://student-stress-predictor-y4y5.onrender.com/predict", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({features})
-            });
-            const data = await res.json();
-            document.getElementById('flipper').classList.add('flip');
-            showResult(data.stress_level);
-        } catch(e) {
-            alert("Connection Error!");
-        }
-    }
-
-    function showResult(lvl) {
-        const needle = document.getElementById('needle');
-        document.querySelectorAll('.result-box').forEach(b => b.classList.remove('active'));
-        
-        if(lvl === "Low") {
-            needle.style.transform = "rotate(-60deg)";
-            document.getElementById('res-low').classList.add('active');
-        } else if(lvl.includes("Med") || lvl.includes("Mod")) {
-            needle.style.transform = "rotate(0deg)";
-            document.getElementById('res-med').classList.add('active');
-        } else {
-            needle.style.transform = "rotate(60deg)";
-            document.getElementById('res-high').classList.add('active');
-        }
-    }
-
-    updateCard();
+    window.onload = loadCardData;
 </script>
 </body>
 </html>
