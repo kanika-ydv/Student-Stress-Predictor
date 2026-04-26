@@ -15,7 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-model = tf.keras.models.load_model('stress_model.h5')
+model = tf.keras.models.load_model('stress_model.keras')
 with open('scaler.pkl', 'rb') as f:
     scaler = pickle.load(f)
 
